@@ -142,22 +142,6 @@ class Perlin:
             image.show()
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 @Broken
 def drawVectors(grid_size, cell_size, vector_list, image, img):
     # vector_list = [[EpixVector.Vector2D(math.sqrt(2)/2, math.sqrt(2)/2) for i in range(GRID_WIDTH+1)] for j in range(GRID_SIZE+1)]

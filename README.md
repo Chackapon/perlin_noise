@@ -27,15 +27,13 @@ When the required set-up steps are completed, Perlin object offers the following
 * toImage() - creates an image of size GRID_SIZE * CELL_SIZE using the perlinValue method. Returns a PIL Image in "L" color mode.
 * stepByStep() - creates an image for every octave added; Broken as of now
 
-
 # Examples
 
 ![perlin_noise_10.png](assets/perlin_noise_10.png)
 
-
 # Known bugs / To-Do
 
-* [ ]  Grid can only be a square for now
+* [ ]  grid can only be a square for now
 * [ ]  a way to sepparately get the value of each octave layer
 * [ ]  a way to map the noise result to a veratin range, to create region maps
 * [ ]  stepByStep is broken
