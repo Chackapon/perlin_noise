@@ -4,7 +4,9 @@ import numpy
 # import EpixVector
 import random
 import math
-import warnings
+
+from fontTools.ttx import process
+
 
 def Broken(f):
     def wrapper(*args):
@@ -24,6 +26,10 @@ class Vector2D:
             return self.x * other.x + self.y * other.y
         else:
             raise NotImplementedError
+    def __repr__(self):
+        return f"Vector2D({self.y}, {self.x})"
+    def __str__(self):
+        return f"({self.y}, {self.x})"
 
 def randomUnitaryVector():
     # angle = random.uniform(0, 2 * math.pi)
@@ -77,6 +83,25 @@ class Perlin:
         VECTORS_WIDTH = self.GRID_WIDTH * 2 ** (self.OCTAVES - 1) + 1
         self.VECTOR_LIST = [[randomUnitaryVector() for x in range(VECTORS_WIDTH)] for y in range(VECTORS_HEIGHT)]
 
+    def rotateVectors(self, angle, a=0, b=0):
+
+
+        for y in range(len(self.VECTOR_LIST)):
+            for x in range(len(self.VECTOR_LIST[0])):
+                #x = cos * x - sin * y
+                #y = sin * x + cos * y
+                if round(a*x + b*y) % 2:
+                    v_angle = angle
+                else:
+                    v_angle = -angle
+
+                vector = self.VECTOR_LIST[y][x]
+                new_x = math.cos(v_angle) * vector.x - math.sin(v_angle) * vector.y
+                new_y = math.sin(v_angle) * vector.x + math.cos(v_angle) * vector.y
+                self.VECTOR_LIST[y][x] = Vector2D(new_y, new_x)
+
+        # for row in self.VECTOR_LIST: print([repr(r) for r in row])
+
 
     def perlinChunkValue(self, x, y, offset_x, offset_y, offset_octave):
         vector_x_index = offset_octave * (int(x) + offset_x)
@@ -122,6 +147,7 @@ class Perlin:
     def toImage(self) -> Image.Image:
         assert self.CELL_SIZE
         try:
+
             image = Image.new('L', (self.GRID_WIDTH * self.CELL_SIZE, self.GRID_HEIGHT * self.CELL_SIZE), "black")
             for y in range(self.GRID_HEIGHT * self.CELL_SIZE):
                 for x in range(self.GRID_WIDTH * self.CELL_SIZE):
@@ -134,6 +160,28 @@ class Perlin:
         except NameError:
             print("PIL not available, image generation is not possible")
             return None
+
+    def animatedGif(self, frame_amount: int, duration = 50, random_directions = True):
+
+        a = random.randint(0, 127) if random_directions else 0
+        b = random.randint(0, 127) if random_directions else 0
+
+        frames = []
+        for _ in range(frame_amount):
+            #rotate vectors
+            self.rotateVectors(2*math.pi / frame_amount, a, b)
+            frames.append(self.toImage())
+            print("Processed frame", _)
+
+        frames[0].save(
+            "perlin_{}x{}_o{}.gif".format(self.GRID_HEIGHT, self.GRID_WIDTH, self.OCTAVES),
+            save_all=True,
+            append_images=frames[1:],
+            optimize=False,
+            duration=duration,
+            loop=1
+        )
+
 
     @Broken
     def stepByStep(self, image):
@@ -165,17 +213,22 @@ def drawVectors(grid_size, cell_size, vector_list, image, img):
 
 if __name__ == "__main__":
 
-    GRID_SIZE = 9
-    CELL_SIZE = 50
-    OCTAVES = 1
+    GRID_HEIGHT = 2
+    GRID_WIDTH = 2
+    CELL_SIZE = 200
+
+    OCTAVES = 4
     DAMP = 0.5
 
-    perlin = Perlin(GRID_SIZE, GRID_SIZE, OCTAVES, DAMP)
+    perlin = Perlin(GRID_HEIGHT, GRID_WIDTH, OCTAVES, DAMP)
     perlin.setCellSize(CELL_SIZE)
 
-    for i in range(1):
-        perlin.generateVectorGrid()
-        # perlin.toImage().save("img/perlin_noise_"+str(i)+".png")
-        perlin.toImage().show()
-        print("img_v4/perlin_noise_"+str(i)+".png completed")
+    # for i in range(1):
+    #     perlin.generateVectorGrid()
+    #     # perlin.toImage().save("img/perlin_noise_"+str(i)+".png")
+    #     perlin.toImage().show()
+    #     print("img_v4/perlin_noise_"+str(i)+".png completed")
 
+    perlin.generateVectorGrid()
+    # perlin.toImage().show()
+    perlin.animatedGif(10, 80)

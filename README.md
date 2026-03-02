@@ -25,7 +25,9 @@ When the required set-up steps are completed, Perlin object offers the following
 
 * perlinValue(x: int, y: int) returns the noise value for the pair of values (x, y) including all octave layers. Returns float in the range of [-1; 1]
 * toImage() - creates an image of size GRID_SIZE * CELL_SIZE using the perlinValue method. Returns a PIL Image in "L" color mode.
+animatedGif(frame_amount: int, duration: int) - saves an animated gif of perlin noise by rotating the gradient vectors
 * stepByStep() - creates an image for every octave added; Broken as of now
+
 
 # Examples
 
